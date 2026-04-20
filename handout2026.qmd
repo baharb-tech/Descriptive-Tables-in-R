@@ -1,0 +1,583 @@
+---
+format:
+  html:
+    css: styles-handout.css
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    embed-resources: true
+  pdf:
+    toc: false
+    toc-depth: 3
+    number-sections: true
+execute:
+  echo: false
+---
+
+::: {.content-visible when-format="html"}
+
+<div style="display: flex; flex-direction: column; justify-content: space-between; height: 100vh; text-align: center; page-break-after: always;">
+
+<div style="margin-top: 40px; font-size: 1.3em;">
+Hochschule Fresenius University of Applied Sciences
+</div>
+
+<div>
+<h1 style="font-size: 2.2em; line-height: 1.4;">
+Descriptive Tables in R:<br>
+janitor, dplyr, gtsummary
+</h1>
+</div>
+
+<div style="margin-bottom: 60px; line-height: 1.4;">
+<p style="margin: 0;">baharalsadat bahadori</p>
+<p style="margin: 0;">Student No: 400897737</p>
+<p style="margin: 0;">Email: bahadori.baharalsadat@stud.hs-fresenius.de</p>
+
+<br>
+
+<p style="margin: 0;">Supervisor:Dr. Prof. Stephan Huber</p>
+<p style="margin: 0;">April 2026</p>
+</div>
+
+</div>
+
+:::
+
+::: {.content-visible when-format="pdf"}
+
+\begin{titlepage}
+\centering
+
+\vspace*{1.2cm}
+
+{\Large Hochschule Fresenius University of Applied Sciences \par}
+
+\vspace{3.2cm}
+
+{\Huge \textbf{Descriptive Tables in R:} \par}
+\vspace{0.3cm}
+{\Huge \textbf{janitor, dplyr, gtsummary} \par}
+
+\vfill
+
+{\Large baharalsadat bahadori \par}
+{\Large Student No: 400897737 \par}
+{\Large Email: bahadori.baharalsadat@stud.hs-fresenius.de \par}
+
+\vspace{1.2cm}
+
+{\Large Supervisor: Dr. Prof. Stephan Huber \par}
+
+\vspace{0.8cm}
+
+{\Large April 2026 \par}
+
+\end{titlepage}
+
+:::
+
+\newpage
+\pagenumbering{gobble}
+
+# Abstract {.unnumbered .unlisted}
+
+\noindent
+This paper provides a structured overview of descriptive tables in R and their role in exploratory data analysis and reporting. Descriptive tables are essential tools for summarizing complex datasets, enabling researchers to identify patterns, detect inconsistencies, and communicate key insights in a clear and interpretable manner. The study focuses on three widely used R packages---janitor, dplyr, and gtsummary---each serving a distinct purpose in the process of data summarization.
+
+\medskip
+
+\noindent
+Using a Bundesliga dataset as an illustrative example, the paper demonstrates how categorical variables can be summarized through frequency tables and how numerical variables can be analyzed using descriptive statistics such as means and standard deviations. The janitor package is introduced as a tool for generating simple and efficient frequency tables, while dplyr is presented as a flexible framework for performing grouped data transformations and statistical summaries. Finally, gtsummary is examined as a solution for producing publication-ready tables with minimal manual formatting.
+
+\medskip
+
+\noindent
+The findings highlight that no single package is sufficient for all analytical needs; instead, an integrated workflow combining these tools provides the most effective approach. This paper contributes to a clearer understanding of how descriptive tables can be systematically created in R, from initial data exploration to final presentation, thereby supporting reproducible and transparent data analysis.
+\newpage
+
+
+
+\tableofcontents
+
+
+
+\newpage
+
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+# Introduction
+
+##  Descriptive Tables in R
+
+Descriptive tables are used to summarize and organize data in a structured and interpretable way. Instead of examining raw datasets directly, which are often large and complex, descriptive tables provide a simplified overview of the most important characteristics of the data.
+
+According to the *Epi R Handbook*, descriptive tables are widely used to explore datasets and present key findings clearly (Epi R Handbook, n.d., "Descriptive tables" section).
+
+##  Why Are Descriptive Tables Important?
+
+In any data analysis process, the first step is to understand the structure and distribution of the dataset. Raw data alone does not easily reveal patterns or relationships.
+
+Descriptive tables help to:
+
+- Identify patterns and trends
+- Detect inconsistencies or unusual values
+- Compare different groups within the data
+- Present results in a clear and accessible format
+
+Descriptive statistics are therefore essential for examining and reporting data before applying further statistical analysis (Zabor, n.d., "Descriptive statistics" section).
+
+##  What Do Descriptive Tables Include?
+
+Descriptive tables typically summarize two main types of variables:
+
+### Categorical Variables
+
+(e.g., team names such as Bundesliga teams)
+
+These variables are summarized using:
+
+- Counts (n)
+- Percentages (%)
+
+### Numerical Variables
+
+(e.g., number of goals scored in a match)
+
+These variables are summarized using:
+
+- Mean (average)
+- Median
+- Standard deviation (SD)
+
+The *Epi R Handbook* explains that different summary measures are used depending on whether variables are categorical or continuous (Epi R Handbook, n.d., "Descriptive tables" section).
+
+### Example: liga Dataset
+
+To illustrate this concept, we can use the Bundesliga dataset:
+
+- **Team** → categorical variable
+- **GF (Goals For)** → numerical variable
+
+A descriptive table based on this dataset can show:
+
+- The number of matches played by each team
+- The proportion of matches per team
+- The average number of goals scored
+
+##  Descriptive Tables in R
+
+In R, descriptive tables can be created using different packages, each designed for a specific purpose:
+
+- **janitor** → simple frequency tables  
+- **dplyr** → flexible data manipulation and summarization  
+- **gtsummary** → formatted tables suitable for reporting  
+
+The choice of tool depends on the complexity of the analysis and the desired output format (Epi R Handbook, n.d., "Descriptive tables" section).
+
+
+# janitor Package
+
+##  Frequency Tables with janitor
+
+The *janitor* package is designed to simplify common data cleaning and exploration tasks. One of its main uses is the creation of frequency tables, which summarize categorical variables by showing counts and proportions.
+
+According to the *Epi R Handbook*, the function `tabyl()` is commonly used to generate simple tabulations of data (Epi R Handbook, n.d., "Descriptive tables" section).
+
+##  What Is a Frequency Table?
+
+A frequency table shows:
+
+- How many times each category appears in the dataset  
+- The proportion (percentage) of each category  
+
+This type of table is particularly useful for categorical variables, such as team names, gender, or regions.
+
+**Example:** Bundesliga Dataset
+
+In the Bundesliga dataset:
+
+- HomeTeam is a categorical variable  
+- Each value represents a football team  
+
+We can create a frequency table as follows:
+
+```r
+library(janitor)
+
+liga %>%
+  tabyl(Team)
+```
+**Interpretation of the Output**
+
+The resulting table typically contains:
+
+- A column with category names (e.g., teams)  
+- A column **n** showing the number of observations  
+- A column **percent** showing the proportion of each category  
+
+For example:
+
+- If a team appears **34 times**, it means the team played 34 matches  
+- If the percentage is **0.06**, it represents **6%** of all matches  
+This allows us to quickly understand how the data is distributed across categories.
+
+**Adding Percentages**
+
+The *janitor* package also allows us to format the output more clearly by adding percentages:
+
+```r
+liga %>%
+  tabyl(Team) %>%
+  adorn_percentages()
+  ```
+  This step converts counts into proportions, making interpretation easier.
+
+
+##  When Should We Use janitor?
+
+Based on the handbook, *janitor* is most useful when:
+
+- We want a quick overview of categorical data  
+- We need simple and readable tables  
+- We are in the early stage of data exploration  
+
+(Epi R Handbook, n.d., "Descriptive tables" section)
+
+
+
+**Limitations**
+
+While *janitor* is very useful, it has some limitations:
+
+- It is mainly designed for simple summaries  
+- It does not provide advanced statistical measures  
+- It is not intended for final publication tables  
+
+For more complex analysis, other tools such as *dplyr* and *gtsummary* are required.
+
+
+# dplyr Package
+
+##  Data Summarization with dplyr
+The *dplyr* package is a core tool in R for data manipulation and transformation. It allows users to perform more flexible and detailed summaries compared to simple frequency tables.
+
+According to the *Epi R Handbook*, functions such as `group_by()` and `summarise()` are commonly used to calculate descriptive statistics for grouped data (Epi R Handbook, n.d., "Descriptive tables" section).
+
+
+##  What Does dplyr Do?
+
+Unlike *janitor*, which focuses on simple counts, *dplyr* allows us to:
+
+- Group data by categories  
+- Calculate summary statistics  
+- Create customized outputs  
+
+This makes it especially useful for analyzing numerical variables within groups.
+
+
+##  Key Functions
+
+ `group_by()`
+
+Groups the dataset based on a categorical variable.
+
+ `summarise()`
+
+Calculates summary statistics such as:
+
+- Mean  
+- Median  
+- Standard deviation  
+
+ `count()`
+
+Counts observations per group (similar to `tabyl()` but simpler).
+
+**Example: Bundesliga Dataset**
+
+We want to calculate the average number of home goals scored by each team.
+
+To do this, we group the data by team and then calculate the mean of home goals:
+
+```r
+library(dplyr)
+
+liga %>%
+  group_by(Team) %>%
+  summarise(
+    avg_goals = mean(GF, na.rm = TRUE)
+  )
+```
+**Interpretation of the Output**
+
+The resulting table shows:
+
+- Each team (**HomeTeam**)  
+- The average number of goals scored at home (**avg_goals**)  
+
+For example:
+
+- If Bayern Munich has an average of **2.5**, it means they score about 2.5 goals per match at home  
+- This allows comparison across teams  
+
+
+**More Advanced Summaries**
+
+We can calculate multiple statistics at once:
+
+```r
+liga %>%
+  group_by(Team) %>%
+  summarise(
+    mean_goals = mean(GF, na.rm = TRUE),
+    sd_goals = sd(GF, na.rm = TRUE)
+  )
+```
+This provides a more complete description of the data.
+
+
+##  When Should We Use dplyr?
+
+According to the handbook, *dplyr* is useful when:
+
+- We need grouped summaries  
+- We want more control over calculations  
+- We are preparing data for further analysis  
+
+(Epi R Handbook, n.d., "Descriptive tables" section)
+
+
+**Limitations**
+
+- Output is not automatically formatted  
+- Tables are not presentation-ready  
+- Requires more manual coding than *janitor*  
+
+
+#  gtsummary Package
+
+##  Publication-Ready Tables with gtsummary
+
+The *gtsummary* package is used to create well-structured and publication-ready descriptive tables. It is designed to automatically summarize variables and present results in a clean and professional format.
+According to Sjoberg et al. (2021), *gtsummary* produces tables that are commonly used in scientific publications.
+
+
+##  What Makes gtsummary Different?
+
+Unlike *janitor* and *dplyr*:
+
+- It automatically detects variable types  
+- It applies appropriate summary statistics  
+- It formats tables for reporting  
+
+This makes it ideal for final outputs.
+
+
+##  Main Function
+
+`tbl_summary()`
+
+This function summarizes all selected variables in a dataset.
+
+
+**Example: Bundesliga Dataset**
+
+We create a descriptive table grouped by team:
+```r
+library(gtsummary)
+
+liga %>%
+  select(Team, GF, GA) %>%
+  tbl_summary(by = Team)
+```
+**Interpretation of the Output**
+
+The table includes:
+
+- Numerical variables (e.g., goals) → mean and standard deviation  
+- Categorical variables → counts and percentages 
+For example:
+
+- Average goals scored by each team  
+- Distribution of matches across teams  
+
+
+##  Why Is It Important?
+
+According to Sjoberg et al. (2021):
+
+- These tables are widely used in research papers  
+- They improve clarity and reproducibility  
+- They standardize how results are reported  
+
+
+##  When Should We Use gtsummary?
+
+- When preparing results for reports or presentations  
+- When a clean and professional table is required  
+- When working with multiple variables  
+
+
+**Limitations**
+
+- Less flexible than *dplyr* for custom calculations  
+- Requires clean and prepared data  
+- Mainly used at the final stage  
+
+
+#  Class Example (Question + Solution)
+
+## Classroom Question
+
+You are given the liga dataset (*bundesligR*), which contains information about teams’ performance across seasons.
+
+Answer the following questions using R:
+
+1. How often has each team appeared in the liga dataset?  
+2. What is the average performance of each team in terms of points, wins, and goals?  
+3. How can we present these results in a clear and structured descriptive table suitable for reporting?  
+
+Use the following packages:
+
+- *janitor*  
+- *dplyr*  
+- *gtsummary*  
+
+**Step 1 – Data Preparation**
+```r
+library(bundesligR)
+library(tidyverse)
+library(janitor)
+library(gtsummary)
+
+liga <- as_tibble(bundesligR) 
+
+```
+**Explanation**
+
+- The dataset is converted into a tibble  
+- A known inconsistency in team names is corrected 
+- This step ensures the data is clean before analysis  
+
+**Step 2 – Frequency Table (janitor)**
+```r
+liga %>%
+  tabyl(Team) %>%
+  adorn_pct_formatting(digits = 1)
+```
+**Explanation**
+
+This step answers Question 1:
+
+- `tabyl()` calculates how many times each team appears  
+- The percentage shows the proportion of each team  
+
+According to the *Epi R Handbook*, `tabyl()` is used for quick tabulations of categorical variables (Epi R Handbook, n.d., "janitor package" section).
+
+**Interpretation**
+
+- Teams with higher counts have participated in more seasons  
+- The table provides a quick overview of dataset composition
+
+**Step 3 – Summary Statistics (dplyr)**
+
+```r
+liga %>%
+  group_by(Team) %>%
+  summarise(
+    seasons = n(),
+    avg_points = mean(Points, na.rm = TRUE),
+    avg_wins = mean(W, na.rm = TRUE),
+    avg_goals = mean(GF, na.rm = TRUE)
+  ) %>%
+  arrange(desc(avg_points))
+  ```
+**Explanation**
+
+This step answers Question 2:
+
+- `group_by(Team)` splits data by team  
+- `summarise()` calculates averages  
+- Multiple statistics are computed simultaneously  
+
+According to the *Epi R Handbook*, `summarise()` is used to compute descriptive statistics for grouped data (Epi R Handbook, n.d., "dplyr package" section).
+
+**Interpretation**
+
+- Teams can now be compared based on performance  
+- Higher average points indicate stronger teams  
+- This step provides deeper insights than simple counts
+
+**Step 4 – Final Table (gtsummary)**
+```r
+liga %>%
+  filter(Team %in% c(
+    "FC Bayern Muenchen",
+    "Borussia Dortmund",
+    "Borussia Moenchengladbach"
+  )) %>%
+  select(Team, Points, W, D, L, GF, GA) %>%
+  tbl_summary(
+    by = Team,
+    statistic = list(all_continuous() ~ "{mean} ({sd})"),
+    digits = all_continuous() ~ 1
+  )
+```
+
+**Explanation**
+
+This step answers Question 3:
+
+- `tbl_summary()` creates a structured table  
+- Numeric variables are summarized automatically  
+- The table is formatted for reporting  
+
+According to Sjoberg et al. (2021), *gtsummary* produces publication-ready tables commonly used in research.
+
+**Interpretation**
+
+- Each team is shown in a separate column  
+- Values are presented as mean (SD)  
+- The table is clean and easy to interpret  
+
+
+#  Conclusion
+
+This paper examined the role of descriptive tables in data analysis and demonstrated how they can be effectively created in R using the *janitor*, *dplyr*, and *gtsummary* packages. Descriptive tables serve as a fundamental step in understanding datasets, allowing researchers to summarize both categorical and numerical variables in a structured and meaningful way.
+
+The analysis showed that each package fulfills a specific function within the data analysis workflow. The *janitor* package is particularly useful for quickly generating frequency tables and gaining an initial understanding of categorical data. In contrast, *dplyr* provides greater flexibility, enabling users to perform detailed grouped analyses and compute multiple descriptive statistics. Finally, *gtsummary* plays a crucial role in transforming analytical results into well-formatted, publication-ready tables suitable for academic and professional reporting.
+
+The class example further illustrated how these tools can be combined in a practical context. By integrating data cleaning, summarization, and presentation, users can move efficiently from raw data to interpretable results. This workflow not only improves analytical clarity but also enhances reproducibility and consistency in reporting.
+
+In conclusion, the effective use of descriptive tables in R depends on selecting the appropriate tools for each stage of analysis. A combined approach leveraging *janitor*, *dplyr*, and *gtsummary* offers a comprehensive solution that balances simplicity, flexibility, and professional presentation. Future work may extend this approach by incorporating more advanced statistical methods or visualization techniques to complement descriptive summaries.
+
+\newpage
+
+
+# References 
+
+Epi R Handbook. (n.d.). *Descriptive tables*. Retrieved April 16, 2026, from  
+https://www.epirhandbook.com/en/new_pages/tables_descriptive.html
+
+Sjoberg, D. D., Curry, M., Larmarange, J., Whiting, K., Zabor, E. C., & others. (2021). Reproducible summary tables with the *gtsummary* package. *R Journal, 13*(1), 570–580.  
+https://journal.r-project.org/articles/RJ-2021-053/
+
+Zabor, E. C. (n.d.). *Descriptive statistics in R*. Retrieved April 16, 2026, from  
+https://www.emilyzabor.com/mmedr/bio-epi-descriptive-statistics.html
+\newpage
+
+# Affidavit
+
+I hereby affirm that this submitted paper was authored unaided and solely by me. Additionally, no other sources than those in the reference list were used.
+
+Parts of this paper, including tables and figures, that have been taken either verbatim or analogously from other works have in each case been properly cited with regard to their origin and authorship.
+
+This paper either in parts or in its entirety, be it in the same or similar form, has not been submitted to any other examination board and has not been published.
+
+\vspace{2cm}
+
+baharalsadat bahadori  
+Cologne, Germany  
+19.04.2026
