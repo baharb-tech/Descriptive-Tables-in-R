@@ -1,0 +1,281 @@
+---
+format:
+  revealjs:
+    slide-number: true
+    pdf: default
+    theme: simple
+    center: true
+    logo: logo.png
+css: styles.css
+---
+
+## {style="text-align: center;"}
+
+<br><br><br>
+
+### <span style="font-size: 50px;"><b>Descriptive Tables in R</b></span>
+
+<br><br>
+
+<span style="font-size: 22px;">
+Baharalsadat Bahadori  
+Student ID: 400897737  
+Email: bahadori.baharalsadat@stud.hs-fresenius.de
+</span>
+
+## {style="text-align: center;"}
+
+<br><br>
+
+![](Qr_code.png){width=400px}
+
+
+<span style="font-size: 22px;">
+Scan the QR code to access the full handout
+</span>
+
+## Agenda {.smaller}
+
+
+- Introduction
+  - Descriptive Tables in R
+  - Why Are Descriptive Tables Important?
+  - What Do Descriptive Tables Include?
+- Janitor Package
+- dplyr Package
+- gtsummary Package
+- Class Example
+- Conclusion
+- References
+
+## Descriptive Tables in R
+
+- Summarize and organize data
+- Give a simple overview of key data
+- Help present results clearly
+
+## Why Are Descriptive Tables Important?
+
+- Identify patterns and trends
+- Detect inconsistencies or unusual values
+- Compare different groups within the data
+- Present results in a clear and accessible format
+
+## What Do Descriptive Tables Include?
+
+- Categorical variables (e.g., team names)
+  - Counts (n)
+  - Percentages (%)
+
+- Numerical variables (e.g., number of goals)
+  - Mean
+  - Median
+  - Standard deviation (SD)
+ 
+ 
+## Janitor Package
+
+- Used for cleaning and exploring data
+- Helps create simple frequency tables
+- Function used: tabyl()
+- Can add percentages for clearer output
+
+## Example (Janitor)
+
+<br><br>
+
+```r
+liga %>%
+  tabyl(Team) %>%
+  adorn_percentages()
+  ```
+## When to Use janitor?
+
+- Quick overview of categorical data
+- Simple and readable tables
+- Early stage of data exploration
+
+**Limitations:**
+
+- Mainly for simple summaries
+- Does not provide advanced statistical measures
+- Not intended for final publication tables
+
+## dplyr Package
+
+- Core tool for data manipulation and transformation
+- Allows flexible and detailed summaries
+- Functions like group_by() , summarise() and count()
+
+## What Does dplyr Do?
+
+- Group data by categories
+- Calculate summary statistics
+- Create customized outputs
+- Useful for numerical data within groups
+- We can calculate multiple statistics at once
+
+## Example (dplyr)
+
+<br><br>
+
+```{.r code-line-numbers="false"}
+library(dplyr)
+
+liga %>%
+  group_by(Team) %>%
+  summarise(
+    mean_goals = mean(GF, na.rm = TRUE),
+    sd_goals = sd(GF, na.rm = TRUE)
+  )
+  ```
+## When to Use dplyr?
+
+- Need grouped summaries
+- More control over calculations
+- Preparing data for further analysis
+
+**Limitations:**
+
+- Output is not automatically formatted
+- Tables are not presentation-ready
+- Requires more manual coding than janitor
+
+## gtsummary Package
+
+- Creates publication-ready descriptive tables
+- Automatically summarizes variables
+- Produces clean and professional output
+- Main function: tbl_summary()
+
+**What makes gtsummary different?**
+
+- Detects variable types automatically
+- Applies appropriate summary statistics
+- Formats tables for reporting
+
+## Example (gtsummary)
+
+<br><br>
+
+```{.r code-line-numbers="false"}
+library(gtsummary)
+
+liga %>%
+  select(Team, GF ,GA) %>%
+  tbl_summary(by = Team)
+  ```
+## When to Use gtsummary?
+
+- Preparing results for reports or presentations
+- Clean and professional tables required
+- Working with multiple variables
+
+**Limitations:**
+
+- Less flexible than dplyr for custom calculations
+- Requires clean and prepared data
+- Mainly used at the final stage
+
+## Classroom Question
+
+- liga dataset (bundesligR)
+
+1. How often has each team appeared?
+2. What is the average performance?
+   - Points
+   - Wins
+   - Goals
+3. How to present results clearly?
+
+- Use: janitor, dplyr, gtsummary
+
+## Solution
+
+
+**Step 1 – Data Preparation**
+
+<br>
+
+```{.r code-line-numbers="false"}
+library(dplyr)
+library(janitor)
+library(gtsummary)
+
+liga <- as_tibble(bundesligR)
+```
+## Solution
+
+**Step 2 – Frequency Table (janitor)**
+
+<br>
+
+```{.r code-line-numbers="false"}
+liga %>%
+  tabyl(Team) %>%
+  adorn_pct_formatting(digits = 1)
+  ```
+## Solution
+
+**Step 3 – Summary Statistics (dplyr)**
+
+<br>
+
+```{.r code-line-numbers="false"}
+liga %>%
+  group_by(Team) %>%
+  summarise(
+    seasons = n(),
+    avg_points = mean(Points, na.rm = TRUE),
+    avg_wins = mean(W, na.rm = TRUE),
+    avg_goals = mean(GF, na.rm = TRUE)
+  ) %>%
+  arrange(desc(avg_points))
+  ```
+## Solution
+
+**Step 4 – Final Table (gtsummary)**
+
+<br>
+
+```{.r code-line-numbers="false"}
+liga %>%
+  filter(Team %in% c(
+    "FC Bayern Muenchen",
+    "Borussia Dortmund",
+    "Borussia Moenchengladbach"
+  )) %>%
+  select(Team, Points, W, D, L, GF, GA) %>%
+  tbl_summary(
+    by = Team,
+    statistic = list(all_continuous() ~ "{mean} ({sd})"),
+    digits = all_continuous() ~ 1
+  )
+  ```
+## Conclusion
+
+- Descriptive tables are essential for understanding data
+- janitor, dplyr, and gtsummary serve different roles
+- janitor: quick overview of categorical data
+- dplyr: flexible data analysis and summaries
+- gtsummary: clean and publication-ready tables
+- Combining these tools improves clarity and reporting
+
+## References
+
+- Epi R Handbook. Descriptive tables  
+  https://www.epirhandbook.com/en/new_pages/tables_descriptive.html
+
+- Sjoberg et al. (2021). gtsummary package  
+  https://journal.r-project.org/articles/RJ-2021-053/
+
+- Zabor, E. C. Descriptive statistics in R  
+  https://www.emilyzabor.com/mmedr/bio-epi-descriptive-statistics.html
+  
+## {style="text-align: center;"}
+
+<br><br><br>
+
+### <span style="font-size: 45px;"><b>Thank you for your attention</b></span>
+
+<br><br>
